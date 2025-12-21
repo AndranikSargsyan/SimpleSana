@@ -119,6 +119,7 @@ class SanaPipeline(nn.Module):
         start_step=1.0,
         use_resolution_binning=True,
         use_chi_prompt=True,
+        shift_schedule=True,
     ):
         self.ori_height, self.ori_width = height, width
         if use_resolution_binning:
@@ -203,7 +204,7 @@ class SanaPipeline(nn.Module):
                 model_kwargs=model_kwargs,
             )
 
-            timesteps = get_schedule(num_inference_steps, z.shape[2])
+            timesteps = get_schedule(num_inference_steps, z.shape[2], shift=shift_schedule)
             timesteps = [t for t in timesteps if t <= start_step]
             
             sample = self.sampler(
