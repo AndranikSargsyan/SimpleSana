@@ -11,6 +11,7 @@ requires-python = ">=3.10"
 license = { file = "LICENSE.md" }
 dependencies = [
     "accelerate>=1.0.1",
+    "bitsandbytes",
     "mmcv==1.7.2",
     "opencv-python",
     "patch_conv",

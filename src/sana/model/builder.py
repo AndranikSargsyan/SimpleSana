@@ -2,7 +2,7 @@ import gc
 
 import torch
 from mmcv import Registry
-from transformers import AutoModelForCausalLM, AutoTokenizer
+from transformers import AutoModelForCausalLM, AutoTokenizer, BitsAndBytesConfig
 from transformers import logging as transformers_logging
 
 from sana.model.dc_ae import DCAE_HF
@@ -29,8 +29,11 @@ def get_tokenizer_and_text_encoder(name, device="cuda"):
     tokenizer = AutoTokenizer.from_pretrained("Efficient-Large-Model/gemma-2-2b-it")
     tokenizer.padding_side = "right"
 
-    model = AutoModelForCausalLM.from_pretrained("Efficient-Large-Model/gemma-2-2b-it", torch_dtype=torch.bfloat16)
-    model = model.to(device)
+    quantization_config = BitsAndBytesConfig(load_in_8bit=True)
+    model = AutoModelForCausalLM.from_pretrained(
+        "Efficient-Large-Model/gemma-2-2b-it",
+        quantization_config=quantization_config
+    )
     text_encoder = model.get_decoder()
 
     del model
