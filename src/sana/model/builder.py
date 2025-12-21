@@ -1,3 +1,5 @@
+import gc
+
 import torch
 from mmcv import Registry
 from transformers import AutoModelForCausalLM, AutoTokenizer
@@ -26,11 +28,17 @@ def build_model(cfg, use_grad_checkpoint=False, use_fp32_attention=False, gc_ste
 def get_tokenizer_and_text_encoder(name, device="cuda"):
     tokenizer = AutoTokenizer.from_pretrained("Efficient-Large-Model/gemma-2-2b-it")
     tokenizer.padding_side = "right"
-    text_encoder = (
-        AutoModelForCausalLM.from_pretrained("Efficient-Large-Model/gemma-2-2b-it", torch_dtype=torch.bfloat16)
-        .get_decoder()
-        .to(device)
-    )
+
+    model = AutoModelForCausalLM.from_pretrained("Efficient-Large-Model/gemma-2-2b-it", torch_dtype=torch.bfloat16)
+    model = model.to(device)
+    text_encoder = model.get_decoder()
+
+    del model
+    gc.collect()
+
+    if torch.cuda.is_available():
+        torch.cuda.empty_cache()
+
     return tokenizer, text_encoder
 
 
